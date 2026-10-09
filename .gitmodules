@@ -1,0 +1,8 @@
+[submodule "services/notification-api"]
+	path = services/notification-api
+	url = git@github.com:Arquitetura-Sistemas-Grupo-3/TechChallenge_Fase2_NotificationAPI.git
+	branch = main
+[submodule "services/catalog-api"]
+	path = services/catalog-api
+	url = git@github.com:Arquitetura-Sistemas-Grupo-3/TechChallenge_Fase2_CatalogAPI.git
+	branch = main
