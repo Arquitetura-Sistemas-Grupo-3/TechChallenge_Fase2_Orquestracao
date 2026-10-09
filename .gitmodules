@@ -6,3 +6,7 @@
 	path = services/catalog-api
 	url = git@github.com:Arquitetura-Sistemas-Grupo-3/TechChallenge_Fase2_CatalogAPI.git
 	branch = main
+[submodule "services/users-api"]
+	path = services/users-api
+	url = git@github.com:Arquitetura-Sistemas-Grupo-3/TechChallenge_Fase2_UsersAPI.git
+	branch = master
