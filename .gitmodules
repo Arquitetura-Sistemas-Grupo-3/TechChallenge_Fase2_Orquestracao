@@ -10,3 +10,7 @@
 	path = services/users-api
 	url = git@github.com:Arquitetura-Sistemas-Grupo-3/TechChallenge_Fase2_UsersAPI.git
 	branch = master
+[submodule "services/payments-api"]
+	path = services/payments-api
+	url = git@github.com:Arquitetura-Sistemas-Grupo-3/TechChallenge_Fase2_PaymentsAPI.git
+	branch = master
