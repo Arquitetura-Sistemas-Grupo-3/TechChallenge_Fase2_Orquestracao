@@ -1,14 +1,48 @@
 services:
-  db:
+  db-user:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: db
+    container_name: db-user
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: ${DB_PASSWORD}
     ports:
       - "1434:1433"   
     volumes:
-      - sqldata:/var/opt/mssql
+      - sqldata-user:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  db-payment:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db-payment
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "1435:1433"   
+    volumes:
+      - sqldata-payment:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  db-catalog:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db-catalog
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "1436:1433"   
+    volumes:
+      - sqldata-catalog:/var/opt/mssql
     healthcheck:
       test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" || exit 1"]
       interval: 10s
@@ -24,7 +58,7 @@ services:
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
@@ -37,7 +71,7 @@ services:
       dockerfile: Dockerfile
     container_name: users-api
     depends_on:
-      db:
+      db-user:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
@@ -45,7 +79,7 @@ services:
       - "5001:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=UserApi;User Id= sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"
+      ConnectionStrings__DefaultConnection: "Server=db-user,1433;Database=UserApi;User Id= sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"
       Jwt__Key: ${JWT_KEY}
       Jwt__Issuer: TechChallenge
       RabbitMq__Host: rabbitmq
@@ -79,13 +113,15 @@ services:
     ports:
       - "5003:8080"
     depends_on:
-      db:
+      db-payment:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      ConnectionStrings__DefaultConnection: "Server=db;Database=PaymentAPI;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"
+      ConnectionStrings__DefaultConnection: "Server=db-payment;Database=PaymentAPI;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"
 
 
 volumes:
-  sqldata:
+  sqldata-user:
+  sqldata-payment:
+  sqldata-catalog:
