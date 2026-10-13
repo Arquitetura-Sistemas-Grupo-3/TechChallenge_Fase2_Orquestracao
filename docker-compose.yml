@@ -119,7 +119,27 @@ services:
         condition: service_healthy
     environment:
       ConnectionStrings__DefaultConnection: "Server=db-payment;Database=PaymentAPI;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"
+      ASPNETCORE_ENVIRONMENT: Development
 
+  catalog-api:
+    build:
+      context: ../CatalogAPI
+      dockerfile: Dockerfile
+    container_name: catalog-api
+    ports:
+      - "5004:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__VirtualHost: "/"
+      RabbitMQ__User: ${RABBITMQ_USER}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
+      ConnectionStrings__DefaultConnection: "Server=db-catalog;Database=CatalogAPI;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      
 
 volumes:
   sqldata-user:
